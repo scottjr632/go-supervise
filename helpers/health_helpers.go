@@ -1,8 +1,17 @@
 package helpers
 
-import "go-supervise/entities"
+import (
+	"go-supervise/entities"
 
-import "errors"
+	"errors"
+
+	"log"
+)
+
+type HealthWrapper struct {
+	Status string
+	*entities.Worker
+}
 
 type CheckUpRepo interface {
 	GetCheckUpsByWorkerID(workerID string) ([]*entities.CheckUp, error)
@@ -28,6 +37,7 @@ func GetHealthForAllWorkers(workerRepo WorkerRepo, checkUpRepo CheckUpRepo) ([]*
 
 	var healthStatus []*entities.Health
 	for _, worker := range workers {
+		log.Print(checkUpRepo)
 		checkups, err := checkUpRepo.GetCheckUpsByWorkerID(worker.WorkerID)
 		if err != nil {
 			return nil, err

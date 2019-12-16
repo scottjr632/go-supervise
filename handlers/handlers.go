@@ -18,8 +18,8 @@ type Handlers interface {
 	Build() error
 }
 
-func NewHandlers(server Routable) Handlers {
-	return &handlers{Routable: server}
+func NewHandlers(server Routable, repo db.DB) Handlers {
+	return &handlers{server, repo}
 }
 
 func (h *handlers) Build() error {

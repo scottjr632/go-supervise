@@ -17,7 +17,7 @@ func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r 
 		if health, err := helpers.GetHealthByWorkerID(workerID, h.repo); err != nil {
 			writeError(w, err, http.StatusBadRequest)
 		} else {
-			if err := writeJSON(w, health); err != nil {
+			if err := writeJSON(w, helpers.HealthWrapper{health.Status(), health.Worker}); err != nil {
 				writeError(w, err, http.StatusInternalServerError)
 			}
 		}
@@ -25,7 +25,13 @@ func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r 
 		if healthStatus, err := helpers.GetHealthForAllWorkers(checkup.GetCheckUpService(), h.repo); err != nil {
 			writeError(w, err, http.StatusInternalServerError)
 		} else {
-			writeJSON(w, healthStatus)
+			var wrappedHealths []*helpers.HealthWrapper
+			for _, health := range healthStatus {
+				wrappedHealth := &helpers.HealthWrapper{health.Status(), health.Worker}
+				wrappedHealths = append(wrappedHealths, wrappedHealth)
+			}
+
+			writeJSON(w, wrappedHealths)
 		}
 	}
 }

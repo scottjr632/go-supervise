@@ -55,7 +55,7 @@ func main() {
 	}
 
 	s := server.NewServer(config.Server).Build()
-	if err := handlers.NewHandlers(s).Build(); err != nil {
+	if err := handlers.NewHandlers(s, db).Build(); err != nil {
 		log.Fatal(err)
 	}
 
