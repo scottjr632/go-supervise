@@ -8,7 +8,7 @@ import (
 )
 
 func (h *handlers) buildCheckUpHandlers(group Routable) {
-	group.GET("/", h.getWorkersHealth)
+	group.GET("/", convertToGinHandler(h.getWorkersHealth))
 }
 
 func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r *http.Request) {
@@ -17,7 +17,7 @@ func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r 
 		if health, err := helpers.GetHealthByWorkerID(workerID, h.repo); err != nil {
 			writeError(w, err, http.StatusBadRequest)
 		} else {
-			if err := writeJSON(w, helpers.HealthWrapper{health.Status(), health.Worker}); err != nil {
+			if err := writeJSON(w, helpers.HealthWrapper{Status: health.Status(), Worker: health.Worker}); err != nil {
 				writeError(w, err, http.StatusInternalServerError)
 			}
 		}
@@ -27,7 +27,7 @@ func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r 
 		} else {
 			var wrappedHealths []*helpers.HealthWrapper
 			for _, health := range healthStatus {
-				wrappedHealth := &helpers.HealthWrapper{health.Status(), health.Worker}
+				wrappedHealth := &helpers.HealthWrapper{Status: health.Status(), Worker: health.Worker, CheckUps: health.Checkups}
 				wrappedHealths = append(wrappedHealths, wrappedHealth)
 			}
 

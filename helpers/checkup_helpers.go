@@ -13,6 +13,7 @@ var (
 type WorkerRepo interface {
 	SaveWorker(worker *entities.Worker) error
 	GetWorkers() []*entities.Worker
+	GetWorkerByID(workerID string) *entities.Worker
 }
 
 func validateNewWorker(worker *entities.Worker) error {

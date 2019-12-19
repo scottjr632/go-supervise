@@ -9,7 +9,8 @@ import (
 )
 
 type HealthWrapper struct {
-	Status string
+	Status   string              `json:"status"`
+	CheckUps []*entities.CheckUp `json:"checkUps"`
 	*entities.Worker
 }
 
@@ -20,7 +21,7 @@ type CheckUpRepo interface {
 
 func GetHealthByWorkerID(workerID string, repo CheckUpRepo) (*entities.Health, error) {
 	checkups, err := repo.GetCheckUpsByWorkerID(workerID)
-	if err != nil {
+	if err != nil || checkups == nil {
 		return nil, err
 	}
 
@@ -38,12 +39,17 @@ func GetHealthForAllWorkers(workerRepo WorkerRepo, checkUpRepo CheckUpRepo) ([]*
 	var healthStatus []*entities.Health
 	for _, worker := range workers {
 		log.Print(checkUpRepo)
+		health := &entities.Health{}
+		health.Worker = workerRepo.GetWorkerByID(worker.WorkerID)
+
 		checkups, err := checkUpRepo.GetCheckUpsByWorkerID(worker.WorkerID)
-		if err != nil {
+		switch true {
+		case err != nil:
 			return nil, err
+		case checkups != nil:
+			health.SetHealthStatus(checkups)
 		}
-		health := &entities.Health{Worker: checkups[0].Worker}
-		health.SetHealthStatus(checkups)
+
 		healthStatus = append(healthStatus, health)
 	}
 	return healthStatus, nil

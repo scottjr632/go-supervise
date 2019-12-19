@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"go-supervise/handlers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,56 +14,36 @@ func NewServer(config *Config) Server {
 
 type server struct {
 	*Config
-	*group
-	E *gin.Engine
+	*gin.Engine
 }
 
-type group struct {
-	// gin *gin.Engine
-	gin *gin.RouterGroup
-}
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:1234")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With, access-control-allow-origin")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
-func convertToGinHandler(handlers ...handlers.ServerHandler) []gin.HandlerFunc {
-	ginHandlers := make([]gin.HandlerFunc, 0)
-	for _, handler := range handlers {
-		ginHandlers = append(ginHandlers, func(c *gin.Context) {
-			handler(c, c.Writer, c.Request)
-		})
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
 	}
-	return ginHandlers
-}
-
-func (s *group) POST(path string, handlers ...handlers.ServerHandler) {
-	s.gin.POST(path, convertToGinHandler(handlers...)...)
-}
-
-func (s *group) GET(path string, handlers ...handlers.ServerHandler) {
-	s.gin.GET(path, convertToGinHandler(handlers...)...)
-}
-
-func (s *group) DELETE(path string, handlers ...handlers.ServerHandler) {
-	s.gin.DELETE(path, convertToGinHandler(handlers...)...)
-}
-
-func (s *group) PATCH(path string, handlers ...handlers.ServerHandler) {
-	s.gin.DELETE(path, convertToGinHandler(handlers...)...)
-}
-
-func (s *group) GROUP(path string, handlers ...handlers.ServerHandler) handlers.Routable {
-	g := s.gin.Group(path, convertToGinHandler(handlers...)...)
-	return &group{g}
 }
 
 func (s *server) Build() Server {
 	g := gin.Default()
 
-	s.E = g
-	s.group = &group{gin: &g.RouterGroup}
+	g.Use(CORS())
+
+	s.Engine = g
 
 	return s
 }
 
 // BuildAndrun ...
-func (s *server) Run() error {
-	return s.E.Run(fmt.Sprintf(":%v", s.Port))
+func (s *server) Start() error {
+	return s.Run(fmt.Sprintf(":%v", s.Port))
 }

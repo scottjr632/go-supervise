@@ -3,9 +3,11 @@ package main
 import (
 	"go-supervise/db"
 	"go-supervise/handlers"
+	"go-supervise/jwt"
 	"go-supervise/server"
 	"go-supervise/services"
 	"go-supervise/services/checkup"
+	"go-supervise/services/password"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,6 +23,7 @@ type Config struct {
 	Server    *server.Config
 	Services  *services.Config
 	Datastore *db.Config
+	JWT       *jwt.Config
 }
 
 func NewConfigFromYML(ymlFilePath string) *Config {
@@ -38,6 +41,8 @@ func NewConfigFromYML(ymlFilePath string) *Config {
 }
 
 func main() {
+	password.SaveBasicPassword()
+
 	godotenv.Load()
 	var config *Config
 	useEnvConfig := os.Getenv("USE_ENV_CONFIG")
@@ -54,13 +59,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	j := jwt.NewJWTFromConfig(*config.JWT)
+
 	s := server.NewServer(config.Server).Build()
-	if err := handlers.NewHandlers(s, db).Build(); err != nil {
+	if err := handlers.NewHandlers(s, db, j).Build(); err != nil {
 		log.Fatal(err)
 	}
 
 	g := errgroup.Group{}
 	g.Go(func() error {
+		checkup.GetCheckUpService().ConfigureService(config.Services.CheckUpService)
 		return checkup.GetCheckUpService().RunWithInterval(
 			config.Services.CheckUpService.Interval*time.Second,
 			&http.Client{},
@@ -68,7 +76,7 @@ func main() {
 		)
 	})
 	g.Go(func() error {
-		return s.Run()
+		return s.Start()
 	})
 
 	if err := g.Wait(); err != nil {

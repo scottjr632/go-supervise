@@ -8,3 +8,6 @@ services:
 datastore:
   dbname: go-service 
   connectionstring: mongodb://localhost:27017
+
+jwt:
+    tokenname: access_token

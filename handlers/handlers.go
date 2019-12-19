@@ -1,39 +1,63 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"go-supervise/db"
+	"go-supervise/jwt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type handlers struct {
 	Routable
 	repo db.DB
-	// jwt      *jwt.JWT
+	jwt  *jwt.JWT
 	// services services.Services
 }
 
+// Handlers ...
 type Handlers interface {
 	Build() error
 }
 
-func NewHandlers(server Routable, repo db.DB) Handlers {
-	return &handlers{server, repo}
+// NewHandlers returns a new handler
+func NewHandlers(server Routable, repo db.DB, j *jwt.JWT) Handlers {
+	return &handlers{server, repo, j}
+}
+
+func convertToGinHandler(handler func(c context.Context, w http.ResponseWriter, r *http.Request)) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		handler(c, c.Writer, c.Request)
+	}
 }
 
 func (h *handlers) Build() error {
-	api := h.GROUP("/api")
-	{
-		buildTestHandlers(api)
-	}
-	workers := api.GROUP("/workers")
+	api := h.Group("/api")
+	protectedRoutes := api.Group("/protected")
+	protectedRoutes.Use(func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			if err := h.jwt.JWTMiddleware(c.Request, c.Set); err != nil {
+				writeError(c.Writer, err, http.StatusUnauthorized)
+				c.Abort()
+			} else {
+				c.Next()
+			}
+		}
+	}())
+	workers := api.Group("/workers")
 	{
 		h.buildWorkerHandlers(workers)
-		health := workers.GROUP("/health")
+		health := workers.Group("/health")
 		{
 			h.buildCheckUpHandlers(health)
 		}
+	}
+	auth := api.Group("/auth")
+	{
+		h.buildAuthHandlers(auth, protectedRoutes)
 	}
 	return nil
 }

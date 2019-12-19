@@ -7,13 +7,15 @@ import (
 	"go-supervise/helpers"
 	services "go-supervise/services/checkup"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func (h *handlers) buildWorkerHandlers(group Routable) {
+func (h *handlers) buildWorkerHandlers(group *gin.RouterGroup) {
 	{
-		group.POST("/", addWorker)
-		group.DELETE("/", removeWorker)
-		group.GET("/", getWorkers)
+		group.POST("/", convertToGinHandler(addWorker))
+		group.DELETE("/", convertToGinHandler(removeWorker))
+		group.GET("/", convertToGinHandler(getWorkers))
 	}
 }
 

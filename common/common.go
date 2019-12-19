@@ -1,6 +1,10 @@
 package common
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+)
 
 // Remove deletes an element from a slice. It does not maintain order
 func Remove(s []interface{}, i int) []interface{} {
@@ -12,4 +16,14 @@ func Remove(s []interface{}, i int) []interface{} {
 func ValidateHTTP(test string) bool {
 	tester := regexp.MustCompile(`(?m)(https)|(http)`)
 	return tester.Match([]byte(test))
+}
+
+func GetIntFromResponse(responseCode string) (int, error) {
+	re := regexp.MustCompile(`(?m)(\d+)`)
+	code := re.FindString(responseCode)
+	if code == "" {
+		return -1, fmt.Errorf("unable to find string in response code: %s", responseCode)
+	}
+
+	return strconv.Atoi(code)
 }

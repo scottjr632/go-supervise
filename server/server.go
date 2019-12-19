@@ -6,7 +6,7 @@ import (
 
 type Buildable interface {
 	Build() Server
-	Run() error
+	Start() error
 }
 
 // Server ...

@@ -1,1 +1,5 @@
 server.config.yml
+client/node_modules
+client/.cache
+client/dist
+creds.txt

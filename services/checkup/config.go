@@ -3,5 +3,6 @@ package checkup
 import "time"
 
 type Config struct {
-	Interval time.Duration
+	Interval  time.Duration
+	UniqueIDs bool
 }

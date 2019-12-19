@@ -1,17 +1,17 @@
 package handlers
 
 import (
-	"context"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
-type ServerHandler func(c context.Context, w http.ResponseWriter, r *http.Request)
-
+// Routable represents a serve that has routes
+// this is for GIN
 type Routable interface {
-	POST(path string, handlers ...ServerHandler)
-	GET(path string, handlers ...ServerHandler)
-	DELETE(path string, handlers ...ServerHandler)
-	PATCH(path string, handlers ...ServerHandler)
+	Group(relativePath string, handlers ...gin.HandlerFunc) *gin.RouterGroup
 
-	GROUP(path string, handlers ...ServerHandler) Routable
+	GET(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes
+	POST(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes
+	PUT(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes
+	DELETE(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes
+	PATCH(relativePath string, handlers ...gin.HandlerFunc) gin.IRoutes
 }
