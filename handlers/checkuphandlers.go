@@ -13,11 +13,16 @@ func (h *handlers) buildCheckUpHandlers(group Routable) {
 
 func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r *http.Request) {
 	workerID := r.URL.Query().Get("workerId")
+	includeCheckups := r.URL.Query().Get("ic")
 	if workerID != "" {
 		if health, err := helpers.GetHealthByWorkerID(workerID, h.repo); err != nil {
 			writeError(w, err, http.StatusBadRequest)
 		} else {
-			if err := writeJSON(w, helpers.HealthWrapper{Status: health.Status(), Worker: health.Worker}); err != nil {
+			wrappedHealth := &helpers.HealthWrapper{Status: health.Status(), Worker: health.Worker}
+			if includeCheckups == "true" || includeCheckups == "1" {
+				wrappedHealth.CheckUps = health.Checkups
+			}
+			if err := writeJSON(w, wrappedHealth); err != nil {
 				writeError(w, err, http.StatusInternalServerError)
 			}
 		}
@@ -27,7 +32,10 @@ func (h *handlers) getWorkersHealth(c context.Context, w http.ResponseWriter, r 
 		} else {
 			var wrappedHealths []*helpers.HealthWrapper
 			for _, health := range healthStatus {
-				wrappedHealth := &helpers.HealthWrapper{Status: health.Status(), Worker: health.Worker, CheckUps: health.Checkups}
+				wrappedHealth := &helpers.HealthWrapper{Status: health.Status(), Worker: health.Worker}
+				if includeCheckups == "true" || includeCheckups == "1" {
+					wrappedHealth.CheckUps = health.Checkups
+				}
 				wrappedHealths = append(wrappedHealths, wrappedHealth)
 			}
 

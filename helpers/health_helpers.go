@@ -10,7 +10,7 @@ import (
 
 type HealthWrapper struct {
 	Status   string              `json:"status"`
-	CheckUps []*entities.CheckUp `json:"checkUps"`
+	CheckUps []*entities.CheckUp `json:"checkUps,omitempty"`
 	*entities.Worker
 }
 
