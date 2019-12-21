@@ -1,0 +1,18 @@
+name: Build and Publish Docker
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: mcraftservers/landing-page/landing-page
+        name: scottjr632/go-supervise/server
+        username: ${{ secrets.GITHUB_DOCKER_REGISTRY_USERNAME }}
+        password: ${{ secrets.GITHUB_DOCKER_REGISTRY_ACCESS_TOKEN }}
+        registry: docker.pkg.github.com
+        dockerfile: Dockerfile
+        tag_names: true
