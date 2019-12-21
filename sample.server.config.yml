@@ -3,11 +3,13 @@ server:
 
 services:
   checkupservice:
-    interval: 30
+    interval: 35 
+    uniqueids: true
 
 datastore:
-  dbname: go-service 
+  dbname: go-service
   connectionstring: mongodb://localhost:27017
 
 jwt:
-    tokenname: access_token
+  tokenname: access_token
+  protectedpath: /api/protected
