@@ -1,15 +1,11 @@
-FROM golang:alpine as build
-
-RUN apk add git
+FROM golang as builder
 
 WORKDIR /app
 COPY . .
-RUN go build
+RUN CGO_ENABLED=0 GOOS=linux go build
 
+FROM scratch
 
-FROM alpine
-
-COPY --from=build /app/go-supervise /
-COPY server.config.yml /server.config.yml
+COPY --from=builder /app/go-supervise /
 
 CMD [ "/go-supervise" ]
