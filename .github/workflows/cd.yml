@@ -9,7 +9,6 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: mcraftservers/landing-page/landing-page
         name: scottjr632/go-supervise/server
         username: ${{ secrets.GITHUB_DOCKER_REGISTRY_USERNAME }}
         password: ${{ secrets.GITHUB_DOCKER_REGISTRY_ACCESS_TOKEN }}
