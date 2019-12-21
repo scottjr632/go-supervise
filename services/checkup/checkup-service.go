@@ -28,10 +28,12 @@ type checkUpService struct {
 	Config
 }
 
+// Client ...
 type Client interface {
 	Get(url string) (resp *http.Response, err error)
 }
 
+// CheckUpRepo ...
 type CheckUpRepo interface {
 	SaveCheckup(*entities.CheckUp) error
 }
@@ -72,7 +74,9 @@ func doCheckUp(worker *entities.Worker, client Client, repo CheckUpRepo) error {
 		checkUp.ActualResult = err.Error()
 	} else {
 		checkUp.ResponseCode = resp.Status
-		checkUp.ActualResult, err = readResponse(resp)
+		if worker.ExpectedResponse != "" {
+			checkUp.ActualResult, err = readResponse(resp)
+		}
 	}
 
 	if err := repo.SaveCheckup(checkUp); err != nil {
