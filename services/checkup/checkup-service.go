@@ -18,7 +18,8 @@ var checkUpInstance *checkUpService
 
 // checkup service errors
 var (
-	ErrWorkerNotFound = errors.New("Unable to find worker by ID")
+	ErrWorkerNotFound      = errors.New("Unable to find worker by ID")
+	ErrWorkerAlreadyExists = errors.New("Worker already exists")
 )
 
 type checkUpService struct {
