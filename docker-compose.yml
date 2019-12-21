@@ -4,14 +4,14 @@ services:
   db:
     image: mongo
     restart: unless-stopped
-    ports:
-      - "27017:27017"
   web:
-    build: .
+    image: go-supervise
     restart: unless-stopped
+    volumes:
+        - ./server.config.yml:/server.config.yml
     links:
       - "db:database"
     ports:
-      - "8080:8080"
+      - "8080:11223"
     depends_on:
       - db
