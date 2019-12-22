@@ -38,6 +38,8 @@ jwt:
 #   restart: unless-stopped
 #   links:
 #     - "server:server"
+#   environment:
+#     - SERVER_URI=http://server:11223
 #   ports:
 #     - "11221:80"
 #   depends_on:
