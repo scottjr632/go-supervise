@@ -30,7 +30,18 @@ jwt:
   tokenname: access_token
   protectedpath: /api/protected
 ```
+## Deploy using Kubernetes
+```bash
+cd k8s/
+kubectl apply -f go-supervise-db.yml
+kubectl apply -f go-supervise-server.yml
+```
+### To deploy with the web client
+```bash
+kubectl apply -f go-supervise-client.yml
+```
 
+## Deploy using docker-compose
 #### Uncomment from docker-compose to include web client
 ```yml
 # web:
@@ -50,7 +61,7 @@ jwt:
  docker-compose up -d
 ```
 
-### Starting a dev server
+## Starting a dev server
 ```shell
  git clone https://github.com/scottjr632/go-supervise.git
  cd go-supervise
