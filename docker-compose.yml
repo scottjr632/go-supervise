@@ -17,14 +17,14 @@ services:
     depends_on:
       - db
 
-  # web:
-  #   image: docker.pkg.github.com/scottjr632/go-supervise-client/client:latest 
-  #   restart: unless-stopped
-  #   links:
-  #     - "server:server"
-  #   environment:
-  #     - SERVER_URI=http://server:11223
-  #   ports:
-  #     - "11221:80"
-  #   depends_on:
-  #     - server
+  web:
+    image: docker.pkg.github.com/scottjr632/go-supervise-client/client:latest 
+    restart: unless-stopped
+    links:
+      - "server:server"
+    environment:
+      - SERVER_URI=http://server:11223
+    ports:
+      - "11221:80"
+    depends_on:
+      - server
