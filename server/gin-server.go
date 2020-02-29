@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/scottjr632/go-bloom-filter"
 )
 
 // NewServer returns a new server instance
@@ -19,7 +18,6 @@ type server struct {
 }
 
 func CORS() gin.HandlerFunc {
-	bloomfilter.
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:1234")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")

@@ -59,7 +59,11 @@ func readResponse(r *http.Response) (string, error) {
 
 // GetCheckUpService ...
 func GetCheckUpService() CheckUpService {
-	checkUpOnce.Do(func() { checkUpInstance = &checkUpService{} })
+	checkUpOnce.Do(func() {
+		checkUpInstance = &checkUpService{
+			Workers: make([]*entities.Worker, 0),
+		}
+	})
 	return checkUpInstance
 }
 
